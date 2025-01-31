@@ -1,6 +1,5 @@
 extends RigidBody2D
 var shoot_pressed = false
-var touching_ground = false
 @export var speed = 3000 #get this to a sweet spot
 var grappleArm: Node2D
 var timeafterRelease = 0.3
@@ -23,8 +22,6 @@ func _process(delta: float) -> void:
 		
 func _physics_process(delta: float) -> void:
 	var force = Vector2(0,0)
-	if touching_ground:
-		freeze = true
 	if shoot_pressed:
 		force  = (get_global_mouse_position()-global_position).normalized() * speed
 		reparent(get_tree().root)
@@ -32,15 +29,15 @@ func _physics_process(delta: float) -> void:
 		shoot_pressed = false
 		freeze  = false
 		$grapplegrabber.monitoring = true
+		gravity_scale = 1
 	apply_central_force(force)
 	
 
 
 func _on_body_entered(body: Node) -> void:
 	if body.is_in_group('ground'):
-		touching_ground = true # Replace with function body.
-	else:
-		touching_ground = false
+		freeze = true
+		gravity_scale = 1 # Replace with function body.
 
 
 func _on_grapplegrabber_body_entered(body: Node2D) -> void:
@@ -49,4 +46,5 @@ func _on_grapplegrabber_body_entered(body: Node2D) -> void:
 		freeze = true
 		$grapplegrabber.monitoring = false
 		position = Vector2(0,0)
+		gravity_scale = 0
 		rotation = 0
